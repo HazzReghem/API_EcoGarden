@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\ConseilRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: ConseilRepository::class)]
 class Conseil
@@ -15,15 +16,19 @@ class Conseil
     private ?int $id = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Groups(['conseil:read'])]
     private ?string $content = null;
 
     #[ORM\Column(type: Types::ARRAY)]
+    #[Groups(['conseil:read'])]
     private array $months = [];
 
     #[ORM\Column]
+    #[Groups(['conseil:read'])]
     private ?\DateTime $created_at = null;
 
     #[ORM\Column(nullable: true)]
+    #[Groups(['conseil:read'])]
     private ?\DateTime $updated_at = null;
 
     public function getId(): ?int
