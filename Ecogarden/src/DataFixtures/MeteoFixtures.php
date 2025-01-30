@@ -6,6 +6,7 @@ use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use App\Entity\Meteo;
 use Faker\Factory;
+use DateTime;
 
 class MeteoFixtures extends Fixture
 {
@@ -16,7 +17,7 @@ class MeteoFixtures extends Fixture
         for($i = 0; $i < 5; $i++) {
             $meteo = new Meteo();
             $meteo->setCity($faker->city);
-            $meteo->setData(json_encode([
+            $meteo->setData(([
                 'temperature' => $faker->randomFloat(1, -10, 35),
                 'humidity' => $faker->numberbetween(30, 100),
                 'condition' => $faker->randomElement(['Ensoleillé', 'Pluvieux', 'Nuageux', 'Orageux', 'Neigeux'])

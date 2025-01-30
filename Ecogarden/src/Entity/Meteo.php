@@ -20,7 +20,7 @@ class Meteo
     private array $data = [];
 
     #[ORM\Column]
-    private ?\DateTimeImmutable $last_fetched_at = null;
+    private ?\DateTime $last_fetched_at = null;
 
     public function getId(): ?int
     {
@@ -51,12 +51,12 @@ class Meteo
         return $this;
     }
 
-    public function getLastFetchedAt(): ?\DateTimeImmutable
+    public function getLastFetchedAt(): ?\DateTime
     {
         return $this->last_fetched_at;
     }
 
-    public function setLastFetchedAt(\DateTimeImmutable $last_fetched_at): static
+    public function setLastFetchedAt(\DateTime $last_fetched_at): static
     {
         $this->last_fetched_at = $last_fetched_at;
 

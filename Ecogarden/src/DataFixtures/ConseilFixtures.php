@@ -4,6 +4,7 @@ namespace App\DataFixtures;
 
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
+use DateTime;
 use App\Entity\Conseil;
 use Faker\Factory;
 
@@ -17,7 +18,8 @@ class ConseilFixtures extends Fixture
             $conseil = new Conseil();
             $conseil->setContent($faker->paragraph(3));
             $conseil->setMonths($faker->randomElements(range(1, 12), rand(1, 6)));
-            $conseil->setCreatedAt($faker->dateTimeBetween('-6 months'));
+
+            $conseil->setCreatedAt($faker->dateTimeBetween('-6 months', 'now'));
             $conseil->setUpdatedAt($faker->dateTimeBetween($conseil->getCreatedAt()));
 
             $manager->persist($conseil);
