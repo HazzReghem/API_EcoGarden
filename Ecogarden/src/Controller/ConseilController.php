@@ -14,24 +14,24 @@ use Symfony\Component\HttpFoundation\Request;
 final class ConseilController extends AbstractController{
 
     #[Route('/conseil/{mois}', name: 'get_conseil_by_month', methods: ['GET'])]
-    #[isGranted('ROLE_USER')]
+    // #[isGranted('ROLE_USER')]
     public function getConseilByMonth(int $mois, ConseilRepository $conseilRepository): JsonResponse
     {
         if ($mois < 1 || $mois > 12) {
             return $this->json(['message' => 'Mois invalide'], 400);
         }
 
-        $conseils = $conseilRepository->findBy(['mois' => $mois]);
+        $conseils = $conseilRepository->findBy(['months' => $mois]);
 
         return new JsonResponse($conseils, 200, [], ['groups' => 'conseil:read']);
     }
 
     #[Route('/conseil', name: 'get_conseil_current_month', methods: ['GET'])]
-    #[isGranted('ROLE_USER')]   
+    // #[isGranted('ROLE_USER')]   
     public function getConseilCurrentMonth(ConseilRepository $conseilRepository): JsonResponse
     {
         $mois = (int) date('n');
-        $conseil = $conseilRepository->findBy(['mois' => $mois]);
+        $conseil = $conseilRepository->findBy(['months' => $mois]);
 
         return new JsonResponse($conseil, 200, [], ['groups' => 'conseil:read']);
     }
