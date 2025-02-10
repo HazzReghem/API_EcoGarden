@@ -16,28 +16,12 @@ class ConseilRepository extends ServiceEntityRepository
         parent::__construct($registry, Conseil::class);
     }
 
-//    /**
-//     * @return Conseil[] Returns an array of Conseil objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('c')
-//            ->andWhere('c.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('c.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
-
-//    public function findOneBySomeField($value): ?Conseil
-//    {
-//        return $this->createQueryBuilder('c')
-//            ->andWhere('c.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+    // public function findByMonth(int $mois): array
+    // {
+    //     return $this->createQueryBuilder('c')
+    //         ->where(':mois MEMBER OF c.months')
+    //         ->setParameter('mois', $mois)
+    //         ->getQuery()
+    //         ->getResult();
+    // }
 }

@@ -10,30 +10,56 @@ use App\Entity\Conseil;
 use App\Repository\ConseilRepository;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Serializer\SerializerInterface;
 
 final class ConseilController extends AbstractController{
 
     #[Route('/conseil/{mois}', name: 'get_conseil_by_month', methods: ['GET'])]
     // #[isGranted('ROLE_USER')]
-    public function getConseilByMonth(int $mois, ConseilRepository $conseilRepository): JsonResponse
+    public function getConseilByMonth(int $mois, ConseilRepository $conseilRepository, SerializerInterface $serializer): JsonResponse
     {
         if ($mois < 1 || $mois > 12) {
             return $this->json(['message' => 'Mois invalide'], 400);
         }
 
-        $conseils = $conseilRepository->findBy(['months' => $mois]);
+        // $conseils = $conseilRepository->findByMonth($mois);
 
-        return new JsonResponse($conseils, 200, [], ['groups' => 'conseil:read']);
+        // if (empty($conseils)) {
+        //     return $this->json(['message' => 'Aucun conseil trouvé pour ce mois'], 404);
+        // }
+
+        // $jsonData = $serializer->serialize($conseils, 'json', ['groups' => 'conseil:read']);
+
+        // return new JsonResponse($jsonData, 200, []);
+        $conseils = $conseilRepository->findAll(); 
+
+        $filteredConseils = array_filter($conseils, function ($conseil) use ($mois) {
+            $months = $conseil->getMonths();
+            if (is_string($months)) {
+                $months = unserialize($months);
+            }
+
+            return in_array($mois, $months);
+        });
+
+        if (empty($filteredConseils)) {
+            return $this->json(['message' => 'Aucun conseil trouvé pour ce mois'], 404);
+        }
+
+        $jsonData = $serializer->serialize($filteredConseils, 'json', ['groups' => 'conseil:read']);
+        return new JsonResponse($jsonData, 200, [], true);
     }
 
     #[Route('/conseil', name: 'get_conseil_current_month', methods: ['GET'])]
     // #[isGranted('ROLE_USER')]   
-    public function getConseilCurrentMonth(ConseilRepository $conseilRepository): JsonResponse
+    public function getConseilCurrentMonth(ConseilRepository $conseilRepository, SerializerInterface $serializer): JsonResponse
     {
         $mois = (int) date('n');
         $conseil = $conseilRepository->findBy(['months' => $mois]);
 
-        return new JsonResponse($conseil, 200, [], ['groups' => 'conseil:read']);
+        $jsonData = $serializer->serialize($conseil, 'json', ['groups' => 'conseil:read']);
+
+        return new JsonResponse($jsonData, 200, [], true);
     }
 
     #[Route('/conseil', name: 'create_conseil', methods: ['POST'])]
