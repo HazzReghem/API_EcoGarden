@@ -16,11 +16,8 @@ final class ConseilController extends AbstractController{
 
     #[Route('/conseil/{mois}', name: 'get_conseil_by_month', methods: ['GET'])]
     #[isGranted('ROLE_USER')]
-    public function getConseilByMonth(int $mois, ConseilRepository $conseilRepository, SerializerInterface $serializer, Security $security): JsonResponse
+    public function getConseilByMonth(int $mois, ConseilRepository $conseilRepository, SerializerInterface $serializer): JsonResponse
     {
-        dump($security->getUser()); // Vérifie si l'utilisateur est bien reconnu
-        dd($this->getUser()); // Affiche l'utilisateur et arrête l'exécution
-
         if ($mois < 1 || $mois > 12) {
             return $this->json(['message' => 'Mois invalide'], 400);
         }
