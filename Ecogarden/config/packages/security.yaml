@@ -35,7 +35,7 @@ security:
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
         
         api:
-            pattern: ^/api
+            pattern: ^/conseil
             stateless: true
             jwt: ~
 
@@ -43,8 +43,8 @@ security:
     # Note: Only the *first* access control that matches will be used
 
     access_control:
-        - { path: ^/api/login, roles: PUBLIC_ACCESS }
-        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/auth, roles: PUBLIC_ACCESS }
+        - { path: ^/conseil, roles: IS_AUTHENTICATED_FULLY }
 
 when@test:
     security:
