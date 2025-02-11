@@ -21,16 +21,7 @@ final class ConseilController extends AbstractController{
         if ($mois < 1 || $mois > 12) {
             return $this->json(['message' => 'Mois invalide'], 400);
         }
-
-        // $conseils = $conseilRepository->findByMonth($mois);
-
-        // if (empty($conseils)) {
-        //     return $this->json(['message' => 'Aucun conseil trouvé pour ce mois'], 404);
-        // }
-
-        // $jsonData = $serializer->serialize($conseils, 'json', ['groups' => 'conseil:read']);
-
-        // return new JsonResponse($jsonData, 200, []);
+        
         $conseils = $conseilRepository->findAll(); 
 
         $filteredConseils = array_filter($conseils, function ($conseil) use ($mois) {
@@ -54,10 +45,24 @@ final class ConseilController extends AbstractController{
     // #[isGranted('ROLE_USER')]   
     public function getConseilCurrentMonth(ConseilRepository $conseilRepository, SerializerInterface $serializer): JsonResponse
     {
-        $mois = (int) date('n');
-        $conseil = $conseilRepository->findBy(['months' => $mois]);
+        $mois = (int) date('n'); // Récupère le mois actuel
+        $conseil = $conseilRepository->findAll();
 
-        $jsonData = $serializer->serialize($conseil, 'json', ['groups' => 'conseil:read']);
+        // filtrer conseils pour mois actuel
+        $filteredConseils = array_filter($conseil, function ($conseil) use ($mois) {
+            $months = $conseil->getMonths();
+            if (is_string($months)) {
+                $months = unserialize($months);
+            }
+
+            return in_array($mois, $months);
+        });
+
+        if (empty($filteredConseils)) {
+            return $this->json(['message' => 'Aucun conseil trouvé pour ce mois'], 404);
+        }
+
+        $jsonData = $serializer->serialize($filteredConseils, 'json', ['groups' => 'conseil:read']);
 
         return new JsonResponse($jsonData, 200, [], true);
     }
