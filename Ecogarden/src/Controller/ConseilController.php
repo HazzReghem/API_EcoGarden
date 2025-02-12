@@ -12,6 +12,8 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Serializer\SerializerInterface;
 
+use App\EventListener\ExceptionListener;
+
 final class ConseilController extends AbstractController{
 
     #[Route('/conseil/{mois}', name: 'get_conseil_by_month', methods: ['GET'])]
