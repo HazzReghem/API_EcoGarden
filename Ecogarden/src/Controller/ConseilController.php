@@ -80,8 +80,9 @@ final class ConseilController extends AbstractController{
         }
 
         $conseil = new Conseil();
-        $conseil->setMois($data['mois']);
-        $conseil->setConseil($data['conseil']);
+        $conseil->setMonths($data['months']);
+        $conseil->setContent($data['content']);
+        $conseil->setCreatedAt(new \DateTime());
 
         $em->persist($conseil);
         $em->flush();

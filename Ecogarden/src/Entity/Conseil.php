@@ -31,6 +31,12 @@ class Conseil
     #[Groups(['conseil:read'])]
     private ?\DateTime $updated_at = null;
 
+    
+    public function __construct()
+    {
+        $this->created_at = new \DateTime(); 
+    }
+
     public function getId(): ?int
     {
         return $this->id;
