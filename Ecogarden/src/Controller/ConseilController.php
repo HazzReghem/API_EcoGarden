@@ -75,7 +75,7 @@ final class ConseilController extends AbstractController{
     {
         $data = json_decode($request->getContent(), true);
 
-        if (!isset($data['mois'], $data['conseil'])) {
+        if (!isset($data['months'], $data['content'])) {
             return new JsonResponse(['error' => 'Données invalides'], 400);
         }
 
@@ -90,6 +90,31 @@ final class ConseilController extends AbstractController{
         return new JsonResponse(['message' => 'Conseil créé'], 201);
     }
 
+    #[Route('/conseil/{id}', name: 'update_conseil', methods: ['PUT'])]
+    #[isGranted('ROLE_ADMIN')]
+    public function updateConseil(int $id, Request $request, ConseilRepository $conseilRepository, EntityManagerInterface $em): JsonResponse
+    {
+        $conseil = $conseilRepository->find($id);
+
+        if (!$conseil) {
+            return new JsonResponse(['message' => 'Conseil non trouvé'], 404);
+        }
+
+        $data = json_decode($request->getContent(), true);
+
+        if (!isset($data['months'], $data['content'])) {
+            return new JsonResponse(['error' => 'Données invalides'], 400);
+        }
+
+        $conseil->setMonths($data['months']);
+        $conseil->setContent($data['content']);
+        $conseil->setUpdatedAt(new \DateTime());
+
+        $em->flush();
+
+        return new JsonResponse(['message' => 'Conseil mis à jour'], 200);
+    }
+    
     #[Route('/conseil/{id}', name: 'delete_conseil', methods: ['DELETE'])]
     #[isGranted('ROLE_ADMIN')]
     public function deleteConseil(int $id, ConseilRepository $conseilRepository, EntityManagerInterface $em): JsonResponse
@@ -104,29 +129,5 @@ final class ConseilController extends AbstractController{
         $em->flush();
 
         return new JsonResponse(['message' => 'Conseil supprimé'], 200);
-    }
-
-    #[Route('/conseil/{id}', name: 'update_conseil', methods: ['PUT'])]
-    #[isGranted('ROLE_ADMIN')]
-    public function updateConseil(int $id, Request $request, ConseilRepository $conseilRepository, EntityManagerInterface $em): JsonResponse
-    {
-        $conseil = $conseilRepository->find($id);
-
-        if (!$conseil) {
-            return new JsonResponse(['message' => 'Conseil non trouvé'], 404);
-        }
-
-        $data = json_decode($request->getContent(), true);
-
-        if (!isset($data['mois'], $data['conseil'])) {
-            return new JsonResponse(['error' => 'Données invalides'], 400);
-        }
-
-        $conseil->setMois($data['mois']);
-        $conseil->setConseil($data['conseil']);
-
-        $em->flush();
-
-        return new JsonResponse(['message' => 'Conseil mis à jour'], 200);
     }
 }
