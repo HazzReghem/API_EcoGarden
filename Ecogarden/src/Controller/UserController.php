@@ -11,6 +11,7 @@ use App\Repository\UserRepository;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class UserController extends AbstractController{
     #[Route('/user', name: 'create_user', methods: ['POST'])]
@@ -42,4 +43,53 @@ final class UserController extends AbstractController{
 
     #[Route('/auth', name: 'user_auth', methods: ['POST'])]
     public function login(): void {}
+
+    #[Route('user/{id}', name: 'update_user', methods: ['PUT'])]
+    #[IsGranted('ROLE_ADMIN')]
+    public function updateUser(int $id, Request $request, UserRepository $userRepository, EntityManagerInterface $em, UserPasswordHasherInterface $passwordHasher): JsonResponse
+    {
+        $user = $userRepository->find($id);
+
+        if (!$user) {
+            return new JsonResponse(['message' => 'Utilisateur non trouvé'], 404);
+        }
+
+        $data = json_decode($request->getContent(), true);
+
+        if (isset($date['username'])) {
+            $user->setUsername($data['username']);
+        }
+
+        if (isset($date['email'])) {
+            $user->setEmail($data['email']);
+        }
+
+        if (isset($date['city'])) {
+            $user->setCity($data['city']);
+        }
+
+        if (isset($date['password'])) {
+            $user->setPassword($passwordHasher->hashPassword($user, $data['password']));
+        }
+
+        $em->flush();
+
+        return new JsonResponse(['message' => 'Utilisateur mis à jour'], 200);
+    }
+
+    #[Route('user/{id}', name: 'delete_user', methods: ['DELETE'])]
+    #[IsGranted('ROLE_ADMIN')]
+    public function deleteUser(int $id, UserRepository $userRepository, EntityManagerInterface $em): JsonResponse
+    {
+        $user = $userRepository->find($id);
+
+        if (!$user) {
+            return new JsonResponse(['message' => 'Utilisateur non trouvé'], 404);
+        }
+
+        $em->remove($user);
+        $em->flush();
+
+        return new JsonResponse(['message' => 'Utilisateur supprimé'], 200);
+    }
 }

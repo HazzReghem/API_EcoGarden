@@ -102,15 +102,30 @@ final class ConseilController extends AbstractController{
 
         $data = json_decode($request->getContent(), true);
 
-        if (!isset($data['months'], $data['content'])) {
-            return new JsonResponse(['error' => 'Données invalides'], 400);
+        // if (!isset($data['months'], $data['content'])) {
+        //     return new JsonResponse(['error' => 'Données invalides'], 400);
+        // }
+
+        // $conseil->setMonths($data['months']);
+        // $conseil->setContent($data['content']);
+        // $conseil->setUpdatedAt(new \DateTime());
+
+        // $em->flush();
+
+        // vérifier si les données sont non nul et de type tableau avant update
+        if (isset($data['months']) && is_array($data['months'])) {
+            $conseil->setMonths($data['months']);
         }
 
-        $conseil->setMonths($data['months']);
-        $conseil->setContent($data['content']);
-        $conseil->setUpdatedAt(new \DateTime());
+        if (isset($data['content']) && is_string($data['content'])) {
+            $conseil->setContent($data['content']);
+        }
 
-        $em->flush();
+        // update que si les données sont modifiées
+        if (!empty($data)) {
+            $conseil->setUpdatedAt(new \DateTime());
+            $em->flush();
+        }
 
         return new JsonResponse(['message' => 'Conseil mis à jour'], 200);
     }
