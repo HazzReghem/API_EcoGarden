@@ -44,7 +44,7 @@ final class UserController extends AbstractController{
     #[Route('/auth', name: 'user_auth', methods: ['POST'])]
     public function login(): void {}
 
-    #[Route('user/{id}', name: 'update_user', methods: ['PUT'])]
+    #[Route('/user/{id}', name: 'update_user', methods: ['PUT'])]
     #[IsGranted('ROLE_ADMIN')]
     public function updateUser(int $id, Request $request, UserRepository $userRepository, EntityManagerInterface $em, UserPasswordHasherInterface $passwordHasher): JsonResponse
     {
@@ -56,19 +56,19 @@ final class UserController extends AbstractController{
 
         $data = json_decode($request->getContent(), true);
 
-        if (isset($date['username'])) {
+        if (isset($data['username'])) {
             $user->setUsername($data['username']);
         }
 
-        if (isset($date['email'])) {
+        if (isset($data['email'])) {
             $user->setEmail($data['email']);
         }
 
-        if (isset($date['city'])) {
+        if (isset($data['city'])) {
             $user->setCity($data['city']);
         }
 
-        if (isset($date['password'])) {
+        if (isset($data['password'])) {
             $user->setPassword($passwordHasher->hashPassword($user, $data['password']));
         }
 
@@ -77,7 +77,7 @@ final class UserController extends AbstractController{
         return new JsonResponse(['message' => 'Utilisateur mis à jour'], 200);
     }
 
-    #[Route('user/{id}', name: 'delete_user', methods: ['DELETE'])]
+    #[Route('/user/{id}', name: 'delete_user', methods: ['DELETE'])]
     #[IsGranted('ROLE_ADMIN')]
     public function deleteUser(int $id, UserRepository $userRepository, EntityManagerInterface $em): JsonResponse
     {
