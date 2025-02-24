@@ -51,24 +51,51 @@ final class UserController extends AbstractController{
         $user = $userRepository->find($id);
 
         if (!$user) {
-            return new JsonResponse(['message' => 'Utilisateur non trouvé'], 404);
+            return new JsonResponse(['error' => 'Utilisateur non trouvé'], 404);
         }
 
         $data = json_decode($request->getContent(), true);
 
+        if (!is_array($data)) {
+            return new JsonResponse(['error' => 'Données invalides'], 400);
+        }
+
+        // Champs autorisés
+        $allowedFields = ['username', 'email', 'city', 'password'];
+        $invalidFields = array_diff(array_keys($data), $allowedFields);
+
+        if (!empty($invalidFields)) {
+            return new JsonResponse([
+                'error' => 'Les champs suivants sont invalides : ' . implode(', ', $invalidFields)
+            ], 400);
+        }
+
+        // Vérification des champs avant mise à jour
         if (isset($data['username'])) {
+            if (!is_string($data['username']) || empty(trim($data['username']))) {
+                return new JsonResponse(['error' => 'Le champ "username" est invalide'], 400);
+            }
             $user->setUsername($data['username']);
         }
 
         if (isset($data['email'])) {
+            if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+                return new JsonResponse(['error' => 'Le champ "email" doit être une adresse email valide'], 400);
+            }
             $user->setEmail($data['email']);
         }
 
         if (isset($data['city'])) {
+            if (!is_string($data['city']) || empty(trim($data['city']))) {
+                return new JsonResponse(['error' => 'Le champ "city" est invalide'], 400);
+            }
             $user->setCity($data['city']);
         }
 
         if (isset($data['password'])) {
+            if (!is_string($data['password']) || strlen($data['password']) < 6) {
+                return new JsonResponse(['error' => 'Le mot de passe doit contenir au moins 6 caractères'], 400);
+            }
             $user->setPassword($passwordHasher->hashPassword($user, $data['password']));
         }
 

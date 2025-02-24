@@ -91,34 +91,52 @@ final class ConseilController extends AbstractController{
     }
 
     #[Route('/conseil/{id}', name: 'update_conseil', methods: ['PUT'])]
-    #[isGranted('ROLE_ADMIN')]
-    public function updateConseil(int $id, Request $request, ConseilRepository $conseilRepository, EntityManagerInterface $em): JsonResponse
-    {
-        $conseil = $conseilRepository->find($id);
+#[IsGranted('ROLE_ADMIN')]
+public function updateConseil(int $id, Request $request, ConseilRepository $conseilRepository, EntityManagerInterface $em): JsonResponse
+{
+    $conseil = $conseilRepository->find($id);
 
-        if (!$conseil) {
-            return new JsonResponse(['message' => 'Conseil non trouvé'], 404);
-        }
-
-        $data = json_decode($request->getContent(), true);
-
-        // vérifier si les données sont non nul et de type tableau avant update
-        if (isset($data['months']) && is_array($data['months'])) {
-            $conseil->setMonths($data['months']);
-        }
-
-        if (isset($data['content']) && is_string($data['content'])) {
-            $conseil->setContent($data['content']);
-        }
-
-        // update que si les données sont modifiées
-        if (!empty($data)) {
-            $conseil->setUpdatedAt(new \DateTime());
-            $em->flush();
-        }
-
-        return new JsonResponse(['message' => 'Conseil mis à jour'], 200);
+    if (!$conseil) {
+        return new JsonResponse(['error' => 'Conseil non trouvé'], 404);
     }
+
+    $data = json_decode($request->getContent(), true);
+
+    if (!is_array($data)) {
+        return new JsonResponse(['error' => 'Données invalides'], 400);
+    }
+
+    // Liste des champs autorisés
+    $allowedFields = ['months', 'content'];
+    $invalidFields = array_diff(array_keys($data), $allowedFields);
+
+    if (!empty($invalidFields)) {
+        return new JsonResponse([
+            'error' => 'Les champs suivants sont invalides : ' . implode(', ', $invalidFields)
+        ], 400);
+    }
+
+    // Vérifier et mettre à jour uniquement si valide
+    if (isset($data['months'])) {
+        if (!is_array($data['months'])) {
+            return new JsonResponse(['error' => 'Le champ "months" doit être un tableau'], 400);
+        }
+        $conseil->setMonths($data['months']);
+    }
+
+    if (isset($data['content'])) {
+        if (!is_string($data['content']) || empty(trim($data['content']))) {
+            return new JsonResponse(['error' => 'Le champ "content" est invalide'], 400);
+        }
+        $conseil->setContent($data['content']);
+    }
+
+    $conseil->setUpdatedAt(new \DateTime());
+    $em->flush();
+
+    return new JsonResponse(['message' => 'Conseil mis à jour'], 200);
+}
+
     
     #[Route('/conseil/{id}', name: 'delete_conseil', methods: ['DELETE'])]
     #[isGranted('ROLE_ADMIN')]
